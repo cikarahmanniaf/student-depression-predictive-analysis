@@ -1,14 +1,14 @@
-# Laporan Proyek Machine Learning - Nama Anda
+# Laporan Proyek Machine Learning - Cika Rahmannia Febrianti
 
 ## Domain Proyek
 
-Pada bagian ini, kamu perlu menuliskan latar belakang yang relevan dengan proyek yang diangkat.
+Depresi di kalangan mahasiswa merupakan isu kesehatan mental yang signifikan, terutama di Indonesia. Berbagai faktor seperti tekanan akademik, ekspektasi keluarga, masalah keuangan, serta kurangnya sistem dukungan sosial sering kali dianggap sebagai hal yang lumrah, padahal secara nyata dapat meningkatkan kerentanan mahasiswa terhadap gangguan kesehatan mental, khususnya depresi. Memahami faktor-faktor risiko ini sangat penting untuk mengembangkan strategi pencegahan dan intervensi yang lebih efektif dan tepat sasaran.
 
-**Rubrik/Kriteria Tambahan (Opsional)**:
-- Jelaskan mengapa dan bagaimana masalah tersebut harus diselesaikan
-- Menyertakan hasil riset terkait atau referensi. Referensi yang diberikan harus berasal dari sumber yang kredibel dan author yang jelas.
-- Format Referensi dapat mengacu pada penulisan sitasi [IEEE](https://journals.ieeeauthorcenter.ieee.org/wp-content/uploads/sites/7/IEEE_Reference_Guide.pdf), [APA](https://www.mendeley.com/guides/apa-citation-guide/) atau secara umum seperti [di sini](https://penerbitdeepublish.com/menulis-buku-membuat-sitasi-dengan-mudah/)
-- Sumber yang bisa digunakan [Scholar](https://scholar.google.com/)
+Secara global, diperkirakan 280 juta orang hidup dengan depresi, termasuk 5% populasi dewasa (6% perempuan dan 4% laki-laki). Wanita dilaporkan lebih rentan terhadap depresi dibandingkan pria. Meskipun terdapat pengobatan yang efektif untuk depresi ringan, sedang, dan berat, lebih dari 75% penderita di negara berpenghasilan rendah dan menengah tidak menerima perawatan yang memadai karena kurangnya investasi, keterbatasan tenaga kesehatan terlatih, dan stigma sosial terhadap gangguan mental (WHO, 2023). Menurut data Badan Kebijakan Pembangunan Kesehatan Kementerian Kesehatan RI (2023), prevalensi depresi secara nasional mencapai 1,4%, dengan kelompok usia 15–24 tahun mencatat angka tertinggi, yaitu sebesar 2%. Depresi merupakan penyebab utama disabilitas pada remaja. Depresi dapat menjadi penyebab bunuh diri, dan bunuh diri merupakan 
+
+Dampak depresi pada mahasiswa sangat luas dan mendalam. Tidak hanya menurunkan performa akademik, depresi juga berdampak pada kesejahteraan emosional, kualitas tidur, pola makan, serta menurunkan produktivitas dan kemampuan sosial. Apabila tidak dideteksi dan ditangani sejak dini, kondisi ini dapat berkembang menjadi gangguan mental yang lebih serius bahkan berujung pada konsekuensi fatal. Oleh karena itu, upaya deteksi dini menjadi krusial. Salah satu pendekatan yang menjanjikan adalah penggunaan teknologi machine learning untuk memprediksi risiko depresi berdasarkan data yang relevan, seperti durasi tidur, tekanan akademik, stres keuangan, riwayat keluarga dengan gangguan mental, hingga adanya pikiran untuk bunuh diri. 
+
+Machine learning menawarkan pendekatan berbasis data untuk mendeteksi gejala depresi sejak dini. Dengan memanfaatkan data demografi, gaya hidup, dan tekanan akademik, model prediktif dapat membantu institusi pendidikan atau tenaga konselor mengidentifikasi mahasiswa berisiko tinggi sehingga intervensi dapat dilakukan lebih cepat dan tepat sasaran. Dengan meningkatnya prevalensi depresi dan terbatasnya tenaga psikolog di kampus-kampus, pendekatan berbasis teknologi seperti machine learning menjadi solusi yang skalabel dan efisien. Deteksi dini ini diharapkan dapat membantu menekan angka dropout, meningkatkan kesejahteraan mahasiswa, dan mendukung terciptanya ekosistem pendidikan yang lebih sehat secara psikologis.
 
 ## Business Understanding
 
