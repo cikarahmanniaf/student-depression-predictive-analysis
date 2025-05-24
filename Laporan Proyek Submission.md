@@ -33,7 +33,7 @@ Machine learning menawarkan pendekatan berbasis data untuk mendeteksi gejala dep
 ### Solution statements
 
 - Membangun dan membandingkan dua model klasifikasi, yaitu: Logistic Regression dan Random Forest.
-- Melakukan hyperparameter tuning menggunakan Grid Search atau Random Search untuk memaksimalkan performa model.
+- Melakukan hyperparameter tuning menggunakan Grid Search untuk memaksimalkan performa model.
 - Evaluasi model menggunakan metriks klasifikasi, seperti: akurasi, precision, recall, dan F1-score.
 
 ## Data Understanding
@@ -63,9 +63,7 @@ Dataset terdiri dari beberapa fitur utama yang menggambarkan karakteristik demog
 |                          | Suicidal Thoughts                                 | Whether the student has ever had suicidal ideation                    |
 | **Target Variable**      | Depression_Status                                 | Binary indicator (0/1 or Yes/No) of whether student experiences depression |
 
-
-
-**Rubrik/Kriteria Tambahan (Opsional)**:
+### Exploratory Data Analysis (EDA(
 - Melakukan beberapa tahapan yang diperlukan untuk memahami data, contohnya teknik visualisasi data atau exploratory data analysis.
 
 ## Data Preparation
@@ -94,6 +92,26 @@ Ingatlah, metrik evaluasi yang digunakan harus sesuai dengan konteks data, probl
 
 **Rubrik/Kriteria Tambahan (Opsional)**: 
 - Menjelaskan formula metrik dan bagaimana metrik tersebut bekerja.
+
+## Conclusion
+## 📌 Kesimpulan
+
+1. **Membangun Model Prediksi Depresi Mahasiswa**  
+   Model prediksi berhasil dikembangkan menggunakan berbagai algoritma machine learning untuk mengidentifikasi status depresi mahasiswa berdasarkan fitur-fitur demografi, akademik, dan gaya hidup. Proses preprocessing, seleksi fitur, pembagian data, serta evaluasi model dilakukan secara sistematis. Hasil evaluasi menunjukkan bahwa model mampu mengklasifikasikan mahasiswa yang mengalami depresi dengan akurasi dan F1-score yang baik.
+
+2. **Faktor-Faktor yang Paling Signifikan terhadap Depresi Mahasiswa**  
+   Berdasarkan analisis dan feature importance dari model Random Forest, faktor-faktor yang paling berkontribusi terhadap tingkat depresi mahasiswa meliputi:
+   - Tingkat stres akademik  
+   - Dukungan sosial dari keluarga dan teman  
+   - Kualitas tidur  
+   - Pola makan dan aktivitas fisik  
+   - Kecenderungan isolasi sosial  
+
+   Faktor-faktor tersebut menunjukkan bahwa baik aspek psikososial maupun gaya hidup memiliki peran penting dalam memengaruhi kondisi mental mahasiswa.
+
+3. **Algoritma dengan Performa Terbaik**  
+   Berdasarkan hasil evaluasi model sebelum dan sesudah hyperparameter tuning, **Logistic Regression dengan tuning parameter** menunjukkan performa terbaik secara keseluruhan. Model ini memperoleh nilai **F1-score (macro avg) tertinggi sebesar 0.7885** setelah tuning, mengungguli algoritma lainnya dalam menjaga keseimbangan antara precision dan recall untuk masing-masing kelas. Dengan demikian, **Logistic Regression (Tuned)** menjadi pilihan terbaik untuk klasifikasi status depresi pada mahasiswa dalam studi ini.
+
 
 **---Ini adalah bagian akhir laporan---**
 
