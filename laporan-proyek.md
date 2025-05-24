@@ -166,69 +166,127 @@ diet_map = {
 df['Dietary Habits'] = df['Dietary Habits'].replace(diet_map)
 ```
 - Standarisasi fitur numerik menggunakan StandardScaler dari sklearn.preprocessing untuk mengubah fitur numerik menjadi distribusi standar (mean = 0, std = 1).
-- Memisahkan ditur dan label
+```python
+scaler = StandardScaler()
+num_cols = ['Age', 'CGPA', 'Work/Study Hours']
+df[num_cols] = scaler.fit_transform(df[num_cols])
+```
+- Memisahkan fitur dan label
 ```python
 X = df.drop('Depression', axis=1)
 y = df['Depression']
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- Data sudah siap digunakan dalam pemodelan.
 
 ## Modeling
-Tahapan ini membahas mengenai model machine learning yang digunakan untuk menyelesaikan permasalahan. Anda perlu menjelaskan tahapan dan parameter yang digunakan pada proses pemodelan.
+Tahap ini bertujuan untuk membangun model machine learning yang dapat mengklasifikasikan status depresi mahasiswa. Untuk mencapai tujuan klasifikasi, dilakukan pendekatan melalui dua algoritma:
+- Logistic Regression
+- Random Forest Classifier
+```python
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+```
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan kelebihan dan kekurangan dari setiap algoritma yang digunakan.
-- Jika menggunakan satu algoritma pada solution statement, lakukan proses improvement terhadap model dengan hyperparameter tuning. **Jelaskan proses improvement yang dilakukan**.
-- Jika menggunakan dua atau lebih algoritma pada solution statement, maka pilih model terbaik sebagai solusi. **Jelaskan mengapa memilih model tersebut sebagai model terbaik**.
+Sebelum pemodelan, dilakukan splitting data dengan perbandingan data train dan test yaitu 80:20. 
+```python
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+```
+Kemudian dilakukan pemodelan menggunakan dua algoritma.
+```python
+# Logistic Regression
+lr = LogisticRegression(max_iter=1000, random_state=42)
+lr.fit(X_train, y_train)
+
+# Random Forest
+rf = RandomForestClassifier(random_state=42)
+rf.fit(X_train, y_train)
+```
 
 ## Evaluation
-Pada bagian ini anda perlu menyebutkan metrik evaluasi yang digunakan. Lalu anda perlu menjelaskan hasil proyek berdasarkan metrik evaluasi yang digunakan.
+Kedua model dievaluasi menggunakan metrik evaluasi klasifikasi (accuracy, precision, recall, dan F1-score). 
 
-Sebagai contoh, Anda memiih kasus klasifikasi dan menggunakan metrik **akurasi, precision, recall, dan F1 score**. Jelaskan mengenai beberapa hal berikut:
-- Penjelasan mengenai metrik yang digunakan
-- Menjelaskan hasil proyek berdasarkan metrik evaluasi
+Hasil Evaluasi Model
 
-Ingatlah, metrik evaluasi yang digunakan harus sesuai dengan konteks data, problem statement, dan solusi yang diinginkan.
+| Model               | Accuracy | Precision (macro avg) | Recall (macro avg) | F1-score (macro avg) |
+|---------------------|----------|------------------------|---------------------|----------------------|
+| Logistic Regression | 0.7961   | 0.7916                 | 0.7851              | 0.7877               |
+| Random Forest       | 0.7900   | 0.7843                 | 0.7809              | 0.7824               |
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan formula metrik dan bagaimana metrik tersebut bekerja.
+Berdasarkan tabel di atas, model Logistic Regression menunjukkan performa yang sedikit lebih baik dibandingkan Random Forest pada semua metrik evaluasi utama. Meski perbedaannya tidak signifikan, Logistic Regression dipilih sebagai model akhir karena memberikan akurasi dan generalisasi yang lebih stabil dengan kompleksitas yang lebih rendah.
+
+Untuk meningkatkan performa kedua model (Logistic Regression dan Random Forest), dilakukan pencarian kombinasi hyperparameter terbaik menggunakan metode Randomized Search (RandomizedSearchCV). Metode ini lebih efisien dibanding Grid Search karena hanya mengevaluasi sejumlah kombinasi parameter secara acak (n_iter), sehingga lebih hemat waktu dan sumber daya. Dalam kasus ini, digunakan n_iter=20 dan cv=5
+```python
+param_grids = {
+    'Logistic Regression': {
+        'model': LogisticRegression(max_iter=1000, random_state=42),
+        'params': {
+            'C': uniform(0.01, 10),
+            'solver': ['lbfgs', 'saga'],
+            'penalty': ['l2']
+        }
+    },
+    'Random Forest': {
+        'model': RandomForestClassifier(random_state=42),
+        'params': {
+            'n_estimators': [50, 100, 200],
+            'max_depth': [None, 10, 20, 30],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 2, 4],
+            'bootstrap': [True, False]
+        }
+    }
+}
+```
+Logistic Regression - Hyperparameter yang dituning:
+- C: Kontrol regulasi (semakin kecil, semakin kuat regulasi)
+- solver: Metode optimisasi (lbfgs, saga)
+- penalty: Jenis regulasi (l2)
+
+Random Forest - Hyperparameter yang dituning:
+- n_estimators: Jumlah pohon dalam hutan
+- max_depth: Kedalaman maksimum setiap pohon
+- min_samples_split: Minimum sampel untuk membagi node
+- min_samples_leaf: Minimum sampel di daun
+- bootstrap: Apakah menggunakan sampling bootstrap
+
+Diperoleh model terbaik setelah tuning adalah 
+- Logistic Regression
+  - `C`: 0.017787658410143285
+  - `penalty`: `'l2'`
+  - `solver`: `'saga'`
+
+- Random Forest
+  - `n_estimators`: 50  
+  - `min_samples_split`: 5  
+  - `min_samples_leaf`: 1  
+  - `max_depth`: 10  
+  - `bootstrap`: `True`
+ 
+Dengan hasil evaluasi setelah dilakukan tuning sebagai berikut.
+
+| Model                       | Accuracy | Precision (macro avg) | Recall (macro avg) | F1-score (macro avg) |
+|-----------------------------|----------|------------------------|---------------------|----------------------|
+| Logistic Regression (Tuned) | 0.7968   | 0.7924                 | 0.7859              | 0.7885               |
+| Random Forest (Tuned)       | 0.7923   | 0.7883                 | 0.7802              | 0.7833               |
+
+Berdasarkan hasil tuning, Logistic Regression tetap mempertahankan performa yang lebih baik dibanding Random Forest. Oleh karena itu, Logistic Regression (Tuned) dipilih sebagai model akhir untuk digunakan dalam sistem prediksi depresi mahasiswa.
 
 ## Conclusion
-## 📌 Kesimpulan
 
-1. **Membangun Model Prediksi Depresi Mahasiswa**  
-   Model prediksi berhasil dikembangkan menggunakan berbagai algoritma machine learning untuk mengidentifikasi status depresi mahasiswa berdasarkan fitur-fitur demografi, akademik, dan gaya hidup. Proses preprocessing, seleksi fitur, pembagian data, serta evaluasi model dilakukan secara sistematis. Hasil evaluasi menunjukkan bahwa model mampu mengklasifikasikan mahasiswa yang mengalami depresi dengan akurasi dan F1-score yang baik.
+1. Membangun Model Prediksi Depresi Mahasiswa
+Model prediksi dikembangkan menggunakan berbagai algoritma machine learning untuk mengidentifikasi status depresi mahasiswa berdasarkan fitur-fitur demografi, akademik, dan gaya hidup. Proses preprocessing, seleksi fitur, pembagian data, serta evaluasi model dilakukan. Hasil evaluasi terbaik ditunjukkan melalui metrik evauasi (accuracy, precision, recall, dan F1-score) paling baik.
 
-2. **Faktor-Faktor yang Paling Signifikan terhadap Depresi Mahasiswa**  
-   Berdasarkan analisis dan feature importance dari model Random Forest, faktor-faktor yang paling berkontribusi terhadap tingkat depresi mahasiswa meliputi:
-   - Tingkat stres akademik  
-   - Dukungan sosial dari keluarga dan teman  
-   - Kualitas tidur  
-   - Pola makan dan aktivitas fisik  
-   - Kecenderungan isolasi sosial  
+2. Faktor-Faktor yang Paling Signifikan terhadap Depresi Mahasiswa
+Dilakukan analisis korelasi Pearson terhadap fitur-fitur numerik untuk mengetahui faktor atau fitur mana yang signifikan mempengaruhi status depresi mahasiswa.
 
-   Faktor-faktor tersebut menunjukkan bahwa baik aspek psikososial maupun gaya hidup memiliki peran penting dalam memengaruhi kondisi mental mahasiswa.
+Berikut adalah fitur-fitur dengan korelasi tertinggi terhadap variabel target (Depression):
 
-3. **Algoritma dengan Performa Terbaik**  
-   Berdasarkan hasil evaluasi model sebelum dan sesudah hyperparameter tuning, **Logistic Regression dengan tuning parameter** menunjukkan performa terbaik secara keseluruhan. Model ini memperoleh nilai **F1-score (macro avg) tertinggi sebesar 0.7885** setelah tuning, mengungguli algoritma lainnya dalam menjaga keseimbangan antara precision dan recall untuk masing-masing kelas. Dengan demikian, **Logistic Regression (Tuned)** menjadi pilihan terbaik untuk klasifikasi status depresi pada mahasiswa dalam studi ini.
+- **Academic Pressure** (`+0.47`): Korelasi positif yang cukup kuat menunjukkan bahwa semakin tinggi tekanan akademik, semakin tinggi risiko depresi.
+- **Age** (`-0.23`): Korelasi negatif sedang menunjukkan bahwa mahasiswa yang lebih muda cenderung memiliki risiko depresi yang lebih tinggi.
+- **Work/Study Hours** (`+0.21`): Semakin tinggi waktu kerja/belajar, cenderung berkorelasi dengan peningkatan risiko depresi.
+- **Study Satisfaction** (`-0.17`): Semakin rendah kepuasan belajar, semakin tinggi kecenderungan mengalami depresi.
 
+3. Algoritma dengan Performa Terbaik
+Berdasarkan hasil evaluasi model sebelum dan sesudah hyperparameter tuning, Logistic Regression dengan tuning parameter menunjukkan performa terbaik secara keseluruhan. Model ini memperoleh nilai F1-score (macro avg) tertinggi sebesar 0.7885 setelah tuning, melebihi algoritma lainnya dalam menjaga keseimbangan antara precision dan recall untuk masing-masing kelas. Dengan demikian, Logistic Regression (Tuned) menjadi pilihan terbaik untuk klasifikasi status depresi pada mahasiswa dalam studi ini.
 
-**---Ini adalah bagian akhir laporan---**
-
-_Catatan:_
-- _Anda dapat menambahkan gambar, kode, atau tabel ke dalam laporan jika diperlukan. Temukan caranya pada contoh dokumen markdown di situs editor [Dillinger](https://dillinger.io/), [Github Guides: Mastering markdown](https://guides.github.com/features/mastering-markdown/), atau sumber lain di internet. Semangat!_
-- Jika terdapat penjelasan yang harus menyertakan code snippet, tuliskan dengan sewajarnya. Tidak perlu menuliskan keseluruhan kode project, cukup bagian yang ingin dijelaskan saja.
 
