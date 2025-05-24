@@ -33,12 +33,12 @@ Machine learning menawarkan pendekatan berbasis data untuk mendeteksi gejala dep
 ### Solution statements
 
 - Membangun dan membandingkan dua model klasifikasi, yaitu: Logistic Regression dan Random Forest.
-- Melakukan hyperparameter tuning menggunakan Grid Search untuk memaksimalkan performa model.
+- Melakukan hyperparameter tuning menggunakan Random Search untuk memaksimalkan performa model.
 - Evaluasi model menggunakan metriks klasifikasi, seperti: akurasi, precision, recall, dan F1-score.
 
 ## Data Understanding
 
-Dataset yang digunakan dalam proyek ini adalah 'Student Depression Dataset' yang berisi data mahasiswa dengan berbagai fitur atau variabel terkait denan kondisi mental dan faktor pendukungnya. Sumber dataset: [https://www.kaggle.com/datasets/adilshamim8/student-depression-dataset?resource=download]
+Dataset yang digunakan dalam proyek ini adalah 'Student Depression Dataset' yang berisi 27901 data mahasiswa dengan berbagai fitur atau variabel terkait denan kondisi mental dan faktor pendukungnya. Sumber dataset: [https://www.kaggle.com/datasets/adilshamim8/student-depression-dataset?resource=download]
 
 Dataset terdiri dari beberapa fitur utama yang menggambarkan karakteristik demografis, akademik, gaya hidup, dan faktor risiko mental mahasiswa antara lain:
 
@@ -63,15 +63,128 @@ Dataset terdiri dari beberapa fitur utama yang menggambarkan karakteristik demog
 |                          | Suicidal Thoughts                                 | Whether the student has ever had suicidal ideation                    |
 | **Target Variable**      | Depression_Status                                 | Binary indicator (0/1 or Yes/No) of whether student experiences depression |
 
-### Exploratory Data Analysis (EDA(
-- Melakukan beberapa tahapan yang diperlukan untuk memahami data, contohnya teknik visualisasi data atau exploratory data analysis.
+### Import Library
+Beberapa library yang akan dipakai dalam analisis ini sebagai berikut.
+
+```python
+# Import library
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import gdown
+
+sns.set(style='whitegrid')
+plt.style.use('seaborn-v0_8-whitegrid')
+
+# Preprocessing & splitting
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+# Classifiers
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+
+# Evaluation metrics
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    ConfusionMatrixDisplay
+)
+
+# Hyperparameter tuning
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import uniform
+
+# Warning control
+import warnings
+warnings.filterwarnings("ignore")
+```
+
+### Exploratory Data Analysis (EDA)
+Dilakukan tahapan eksplorasi data sebelum modelling dengan tujuan untuk memahami karakteristik data, termasuk:
+- Loading dataset
+- Struktur dan tipe data 
+- Statistika deskriptif
+- Missing value
+- Data Duplikat
+- Sebaran variabel target ('Depression') untuk mengetahui keseimbangan data
+- Distribusi variabel numerik menggunakan histogram
+- Korelasi variabel numerik
+- Boxplot untuk pemeriksaan outlier
+- Distribusi variabel kategorik terhadap variabel target menggunakan count plot
+
+Setelah dilakukan eksplorasi, didapatkan beberapa informasi seperti: 
+- Ada beberapa fitur string yang harus dikonversi ke numerik ('Sleep Duration'), Encoding fitur kategorikal, dan drop kolom yang tidak relevan.
+- Tidak ada missing value, duplicate data, serta invalid value (dilihat dari statistika deskriptif)
+- Sebaran status depresi ada 'Ya': 16336 dan 'Tidak': 11565
+- Fitur 'Work Pressure' dan 'Job Satisfaction' nampak pada histogram seperti hanya ada nilai '0', tetapi sebenarnya tidak. Hal itu karena kecilnya jumlah mahasiswa pekerja.
+- Ada beberapa fitur yang memiliki korelasi rendah-cukup dengan fitur 'Depression', termasuk: 'Academic Pressure' dan 'Work/Study Hours' dengan korelais postif: 'Age' dan 'Study Satisfaction' dengan korelasi negatif.
+- Fitur 'Age' terdeteksi memiliki outlier dalma boxplot, tetapi diputuskan tidak dilakukan imputasi maupun dropping karena rentang masih dalam tahap wajar dan masuk akal terjadi (ada mahasiswa baru mulai pendidikan tinggi di usia di atas 24 tahun).
+- Lelaki lebih banyak terkena depresi dibanding dengan perempuan. Jumlah tertinggi depresinya memiliki rata-rata durasi tidur kurang dari 5 jam, pola diet yang tidak sehat, dan ada masalah tekanan finansial.
 
 ## Data Preparation
-Pada bagian ini Anda menerapkan dan menyebutkan teknik data preparation yang dilakukan. Teknik yang digunakan pada notebook dan laporan harus berurutan.
+Tahapan ini bertujuan untuk mempersiapkan data agar dapat digunakan dalam proses pemodelan machine learning. Seluruh teknik yang digunakan dijelaskan secara sistematis berikut ini.
 
-**Rubrik/Kriteria Tambahan (Opsional)**: 
-- Menjelaskan proses data preparation yang dilakukan
-- Menjelaskan alasan mengapa diperlukan tahapan data preparation tersebut.
+- Drop fitur tidak relevan sebagai penyebab depresi, fitur low variance, dan yang berpotensi bersinggungan dengan label.
+  
+```python
+df.drop([
+    'id',
+    'City',
+    'Profession',
+    'Job Satisfaction',
+    'Have you ever had suicidal thoughts ?',
+    'Degree'], axis=1, inplace=True)
+```
+- Mengubah tipe data
+```python
+df['Financial Stress'] = df['Financial Stress'].astype(float)
+```
+- Label Encoding untuk fitur 'Gender' dan 'Family History of Mentall Illness'
+```python
+df['Gender'] = df['Gender'].map({'Male': 0, 'Female': 1})
+df['Family History of Mental Illness'] = df['Family History of Mental Illness'].map({'Yes': 1, 'No': 0})
+```
+- Ordinal Encoding untuk fitur 'Sleep Duration' dan 'Dietary Habits'
+```python
+sleep_map = {
+    'Less than 5 hours': 0,
+    '5-6 hours': 1,
+    '7-8 hours': 2,
+    'More than 8 hours': 3,
+    'Others': 4
+}
+df['Sleep Duration'] = df['Sleep Duration'].replace(sleep_map)
+
+diet_map = {
+    'Unhealthy': 0,
+    'Moderate': 1,
+    'Healthy': 2,
+    'Others': 3
+}
+df['Dietary Habits'] = df['Dietary Habits'].replace(diet_map)
+```
+- Standarisasi fitur numerik menggunakan StandardScaler dari sklearn.preprocessing untuk mengubah fitur numerik menjadi distribusi standar (mean = 0, std = 1).
+- Memisahkan ditur dan label
+```python
+X = df.drop('Depression', axis=1)
+y = df['Depression']
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Modeling
 Tahapan ini membahas mengenai model machine learning yang digunakan untuk menyelesaikan permasalahan. Anda perlu menjelaskan tahapan dan parameter yang digunakan pada proses pemodelan.
