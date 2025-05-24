@@ -10,7 +10,8 @@ Dampak depresi pada mahasiswa sangat luas dan mendalam. Tidak hanya menurunkan p
 
 Machine learning menawarkan pendekatan berbasis data untuk mendeteksi gejala depresi sejak dini. Dengan memanfaatkan data demografi, gaya hidup, dan tekanan akademik, model prediktif dapat membantu institusi pendidikan atau tenaga konselor mengidentifikasi mahasiswa berisiko tinggi sehingga intervensi dapat dilakukan lebih cepat dan tepat sasaran. Dengan meningkatnya prevalensi depresi dan terbatasnya tenaga psikolog di kampus-kampus, pendekatan berbasis teknologi seperti machine learning menjadi solusi yang skalabel dan efisien. Deteksi dini ini diharapkan dapat membantu menekan angka dropout, meningkatkan kesejahteraan mahasiswa, dan mendukung terciptanya ekosistem pendidikan yang lebih sehat secara psikologis.
 
-Referensi:
+### Referensi:
+
 [1] World Health Organization, "Depressive disorder (depression)," WHO, 2023. [Online]. Available: https://www.who.int/news-room/fact-sheets/detail/depression
 
 [2] Kementerian Kesehatan Republik Indonesia, "Depresi pada anak muda di Indonesia," Badan Kebijakan Pembangunan Kesehatan, 2023. [Online]. Available: https://repository.badankebijakan.kemkes.go.id/id/eprint/5532/1/03%20factsheet%20Keswa_bahasa.pdf
