@@ -1,6 +1,6 @@
 # Laporan Proyek Machine Learning - Cika Rahmannia Febrianti
 
-## Domain Proyek
+## Project Overview
 
 Depresi di kalangan mahasiswa merupakan isu kesehatan mental yang signifikan, terutama di Indonesia. Berbagai faktor seperti tekanan akademik, ekspektasi keluarga, masalah keuangan, serta kurangnya sistem dukungan sosial sering kali dianggap sebagai hal yang lumrah, padahal secara nyata dapat meningkatkan kerentanan mahasiswa terhadap gangguan kesehatan mental, khususnya depresi. Memahami faktor-faktor risiko ini sangat penting untuk mengembangkan strategi pencegahan dan intervensi yang lebih efektif dan tepat sasaran.
 
@@ -277,14 +277,12 @@ Berdasarkan hasil tuning, Logistic Regression tetap mempertahankan performa yang
 Model prediksi dikembangkan menggunakan berbagai algoritma machine learning untuk mengidentifikasi status depresi mahasiswa berdasarkan fitur-fitur demografi, akademik, dan gaya hidup. Proses preprocessing, seleksi fitur, pembagian data, serta evaluasi model dilakukan. Hasil evaluasi terbaik ditunjukkan melalui metrik evauasi (accuracy, precision, recall, dan F1-score) paling baik.
 
 2. Faktor-Faktor yang Paling Signifikan terhadap Depresi Mahasiswa
-Dilakukan analisis korelasi Pearson terhadap fitur-fitur numerik untuk mengetahui faktor atau fitur mana yang signifikan mempengaruhi status depresi mahasiswa.
+Dilakukan analisis korelasi Pearson terhadap fitur-fitur numerik untuk mengetahui faktor atau fitur mana yang signifikan mempengaruhi status depresi mahasiswa. Berikut adalah fitur-fitur dengan korelasi tertinggi terhadap variabel target (Depression):
 
-Berikut adalah fitur-fitur dengan korelasi tertinggi terhadap variabel target (Depression):
-
-- **Academic Pressure** (`+0.47`): Korelasi positif yang cukup kuat menunjukkan bahwa semakin tinggi tekanan akademik, semakin tinggi risiko depresi.
-- **Age** (`-0.23`): Korelasi negatif sedang menunjukkan bahwa mahasiswa yang lebih muda cenderung memiliki risiko depresi yang lebih tinggi.
-- **Work/Study Hours** (`+0.21`): Semakin tinggi waktu kerja/belajar, cenderung berkorelasi dengan peningkatan risiko depresi.
-- **Study Satisfaction** (`-0.17`): Semakin rendah kepuasan belajar, semakin tinggi kecenderungan mengalami depresi.
+- Academic Pressure (`+0.47`): Korelasi positif yang cukup kuat menunjukkan bahwa semakin tinggi tekanan akademik, semakin tinggi risiko depresi.
+- Age (`-0.23`): Korelasi negatif sedang menunjukkan bahwa mahasiswa yang lebih muda cenderung memiliki risiko depresi yang lebih tinggi.
+- Work/Study Hours (`+0.21`): Semakin tinggi waktu kerja/belajar, cenderung berkorelasi dengan peningkatan risiko depresi.
+- Study Satisfaction (`-0.17`): Semakin rendah kepuasan belajar, semakin tinggi kecenderungan mengalami depresi.
 
 3. Algoritma dengan Performa Terbaik
 Berdasarkan hasil evaluasi model sebelum dan sesudah hyperparameter tuning, Logistic Regression dengan tuning parameter menunjukkan performa terbaik secara keseluruhan. Model ini memperoleh nilai F1-score (macro avg) tertinggi sebesar 0.7885 setelah tuning, melebihi algoritma lainnya dalam menjaga keseimbangan antara precision dan recall untuk masing-masing kelas. Dengan demikian, Logistic Regression (Tuned) menjadi pilihan terbaik untuk klasifikasi status depresi pada mahasiswa dalam studi ini.
