@@ -124,10 +124,10 @@ Setelah dilakukan eksplorasi, didapatkan beberapa informasi seperti:
 - Lelaki lebih banyak terkena depresi dibanding dengan perempuan. Jumlah tertinggi depresinya memiliki rata-rata durasi tidur kurang dari 5 jam, pola diet yang tidak sehat, dan ada masalah tekanan finansial.
 
 ## Data Preparation
-Tahapan ini bertujuan untuk mempersiapkan data agar dapat digunakan dalam proses pemodelan machine learning. Seluruh teknik yang digunakan dijelaskan secara sistematis berikut ini.
+Tahapan ini bertujuan untuk mempersiapkan data agar dapat digunakan dalam proses pemodelan machine learning. Seluruh langkah dilakukan sesuai urutan dan isi notebook sebagai berikut:
 
-- Drop fitur tidak relevan sebagai penyebab depresi, fitur low variance, dan yang berpotensi bersinggungan dengan label.
-  
+### 1. Menghapus fitur tidak relevan
+Fitur-fitur berikut dihapus karena dianggap: tidak berkontribusi signifikan terhadap prediksi depresi, memiliki variansi rendah, dan berpotensi mirip dengan label dan menyebabkan data leakage.
 ```python
 df.drop([
     'id',
@@ -135,18 +135,36 @@ df.drop([
     'Profession',
     'Job Satisfaction',
     'Have you ever had suicidal thoughts ?',
-    'Degree'], axis=1, inplace=True)
+    'Degree'
+], axis=1, inplace=True)
 ```
-- Mengubah tipe data
+### 2. Menangani nilai tidak valid
+Pada kolom Financial Stress, terdapat nilai '?' yang tidak valid. Nilai tersebut diganti dengan modus dari kolom yang sama, kemudian diubah ke tipe data numerik.
 ```python
+print(df['Financial Stress'].value_counts())
+
+# Ganti '?' dengan modus
+mode_val = df.loc[df['Financial Stress'] != '?', 'Financial Stress'].mode()[0]
+df['Financial Stress'] = df['Financial Stress'].replace('?', mode_val)
 df['Financial Stress'] = df['Financial Stress'].astype(float)
 ```
-- Label Encoding untuk fitur 'Gender' dan 'Family History of Mentall Illness'
+
+### 3. Pembersihan string
+Beberapa fitur kategorikal memiliki spasi atau tanda kutip tambahan yang perlu dibersihkan untuk menghindari inkonsistensi nilai.
+```python
+df['Gender'] = df['Gender'].str.strip().str.replace("'", "")
+df['Family History of Mental Illness'] = df['Family History of Mental Illness'].str.strip().str.replace("'", "")
+df['Sleep Duration'] = df['Sleep Duration'].str.strip().str.replace("'", "")
+df['Dietary Habits'] = df['Dietary Habits'].str.strip().str.replace("'", "")
+```
+
+### 4. Encoding fitur kategorikal
+Untuk fitur biner digunakan Label Encoding:
 ```python
 df['Gender'] = df['Gender'].map({'Male': 0, 'Female': 1})
 df['Family History of Mental Illness'] = df['Family History of Mental Illness'].map({'Yes': 1, 'No': 0})
 ```
-- Ordinal Encoding untuk fitur 'Sleep Duration' dan 'Dietary Habits'
+Untuk fitur ordinal digunakan Ordinal Encoding:
 ```python
 sleep_map = {
     'Less than 5 hours': 0,
@@ -165,34 +183,58 @@ diet_map = {
 }
 df['Dietary Habits'] = df['Dietary Habits'].replace(diet_map)
 ```
-- Standarisasi fitur numerik menggunakan StandardScaler dari sklearn.preprocessing untuk mengubah fitur numerik menjadi distribusi standar (mean = 0, std = 1).
+
+### 5. Standarisasi fitur numerik
+Fitur numerik (num_cols) seperti Age, CGPA, dan Work/Study Hours distandarisasi menggunakan StandardScaler.
 ```python
 scaler = StandardScaler()
-num_cols = ['Age', 'CGPA', 'Work/Study Hours']
 df[num_cols] = scaler.fit_transform(df[num_cols])
 ```
-- Memisahkan fitur dan label
+
+### 6. Pemisahan fitur (X) dan target (y)
 ```python
 X = df.drop('Depression', axis=1)
 y = df['Depression']
 ```
-- Data sudah siap digunakan dalam pemodelan.
+
+Dengan tahapan di atas, data telah siap digunakan untuk pelatihan model machine learning
 
 ## Modeling
-Tahap ini bertujuan untuk membangun model machine learning yang dapat mengklasifikasikan status depresi mahasiswa. Untuk mencapai tujuan klasifikasi, dilakukan pendekatan melalui dua algoritma:
-- Logistic Regression
-- Random Forest Classifier
+Tahapan ini bertujuan untuk membangun model machine learning yang dapat mengklasifikasikan status depresi mahasiswa. Dua algoritma yang digunakan adalah Logistic Regression dan Random Forest Classifier. Berikut ini penjelasan prinsip kerja dan alasan pemilihannya.
+
+### 1. Penjelasan model
+#### a. Logistic Regression
+Logistic Regression adalah algoritma klasifikasi linier yang digunakan untuk memprediksi probabilitas kejadian suatu kelas. Fungsi utamanya adalah fungsi sigmoid/logistik yang membatasi output antara 0 dan 1. Dengan asumsi dasar bahwa tidak terdapat hubungan linear antara fitur dan logit dari probabilitas serta tidak ada multikolinearitas antar fitur. Dengan parameter utama:
+
+- C: Mengontrol kekuatan regularisasi (semakin kecil, regularisasi semakin kuat).
+- penalty: Jenis regularisasi (L2 digunakan untuk mencegah overfitting).
+- solver: Metode optimasi seperti lbfgs atau saga.
+
+#### b. Random Forest Classifier
+Random Forest adalah algoritma ensemble berbasis pohon keputusan yang bekerja dengan membangun banyak decision tree dan menggabungkan hasil voting untuk klasifikasi. Keunggulannya adalah mampu menangkap hubungan non linier dan interaksi antar fitur serta tahan terhadap outlier dan multikolinearitas. Dengan parameter utama:
+
+- n_estimators: Jumlah pohon dalam hutan.
+- max_depth: Kedalaman maksimum pohon.
+- min_samples_split: Minimum jumlah sampel untuk split node.
+- min_samples_leaf: Minimum sampel pada daun.
+- bootstrap: Sampling dengan pengembalian atau tidak.
+
+### 2. Splitting Data
+Sebelum pemodelan, data dibagi menjadi data latih dan data uji dengan rasio 80:20 dan stratifikasi target.
+```python
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+```
+
+### 3. Pemodelan
+Pemodelan awal dilakukan menggunakan parameter default dari masing-masing algoritma untuk mendapatkan baseline performance.
 ```python
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-```
 
-Sebelum pemodelan, dilakukan splitting data dengan perbandingan data train dan test yaitu 80:20. 
-```python
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-```
-Kemudian dilakukan pemodelan menggunakan dua algoritma.
-```python
 # Logistic Regression
 lr = LogisticRegression(max_iter=1000, random_state=42)
 lr.fit(X_train, y_train)
@@ -201,6 +243,7 @@ lr.fit(X_train, y_train)
 rf = RandomForestClassifier(random_state=42)
 rf.fit(X_train, y_train)
 ```
+Parameter default digunakan terlebih dahulu untuk membandingkan performa awal antar model secara objektif sebelum dilakukan tuning
 
 ## Evaluation
 Kedua model dievaluasi menggunakan metrik evaluasi klasifikasi (accuracy, precision, recall, dan F1-score). 
@@ -214,8 +257,12 @@ Hasil Evaluasi Model
 
 Berdasarkan tabel di atas, model Logistic Regression menunjukkan performa yang sedikit lebih baik dibandingkan Random Forest pada semua metrik evaluasi utama. Meski perbedaannya tidak signifikan, Logistic Regression dipilih sebagai model akhir karena memberikan akurasi dan generalisasi yang lebih stabil dengan kompleksitas yang lebih rendah.
 
-Untuk meningkatkan performa kedua model (Logistic Regression dan Random Forest), dilakukan pencarian kombinasi hyperparameter terbaik menggunakan metode Randomized Search (RandomizedSearchCV). Metode ini lebih efisien dibanding Grid Search karena hanya mengevaluasi sejumlah kombinasi parameter secara acak (n_iter), sehingga lebih hemat waktu dan sumber daya. Dalam kasus ini, digunakan n_iter=20 dan cv=5
+Untuk meningkatkan performa, dilakukan pencarian kombinasi parameter terbaik menggunakan RandomizedSearchCV. Pendekatan ini lebih efisien daripada Grid Search karena mengevaluasi kombinasi parameter secara acak.
+
 ```python
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import uniform
+
 param_grids = {
     'Logistic Regression': {
         'model': LogisticRegression(max_iter=1000, random_state=42),
@@ -237,17 +284,6 @@ param_grids = {
     }
 }
 ```
-Logistic Regression - Hyperparameter yang dituning:
-- C: Kontrol regulasi (semakin kecil, semakin kuat regulasi)
-- solver: Metode optimisasi (lbfgs, saga)
-- penalty: Jenis regulasi (l2)
-
-Random Forest - Hyperparameter yang dituning:
-- n_estimators: Jumlah pohon dalam hutan
-- max_depth: Kedalaman maksimum setiap pohon
-- min_samples_split: Minimum sampel untuk membagi node
-- min_samples_leaf: Minimum sampel di daun
-- bootstrap: Apakah menggunakan sampling bootstrap
 
 Diperoleh model terbaik setelah tuning adalah 
 - Logistic Regression
